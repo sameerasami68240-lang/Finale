@@ -1,0 +1,52 @@
+import { useState } from "react"; import { Car, Search, Menu } from "lucide-react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button";
+
+export default function Dashboard() { const [search, setSearch] = useState("");
+
+const supercars = [ { name: "Ferrari SF90 Stradale", price: "$625,000", image: "https://cdn.pixabay.com/photo/2018/05/02/21/15/ferrari-3366936_1280.jpg", }, { name: "Lamborghini Aventador SVJ", price: "$517,000", image: "https://cdn.pixabay.com/photo/2018/04/13/20/27/lamborghini-3315461_1280.jpg", }, { name: "Bugatti Chiron", price: "$3,000,000", image: "https://cdn.pixabay.com/photo/2018/04/16/15/38/bugatti-3324528_1280.jpg", }, { name: "McLaren P1", price: "$1,150,000", image: "https://cdn.pixabay.com/photo/2021/09/01/13/39/mclaren-6591642_1280.jpg", }, { name: "Porsche 918 Spyder", price: "$845,000", image: "https://cdn.pixabay.com/photo/2016/12/07/15/16/porsche-918-1880381_1280.jpg", }, ];
+
+const filteredCars = supercars.filter((car) => car.name.toLowerCase().includes(search.toLowerCase()) );
+
+return ( <div className="flex h-screen bg-gray-100"> {/* Sidebar */} <aside className="w-64 bg-gray-900 text-white p-6 hidden md:block"> <h1 className="text-2xl font-bold mb-6 flex items-center gap-2"> <Car className="w-6 h-6" /> Supercar Hub </h1> <nav className="space-y-4"> <a href="#" className="block hover:text-gray-300">Dashboard</a> <a href="#" className="block hover:text-gray-300">Sales</a> <a href="#" className="block hover:text-gray-300">Customers</a> <a href="#" className="block hover:text-gray-300">Reports</a> </nav> </aside>
+
+{/* Main Content */}
+  <main className="flex-1 p-6 overflow-y-auto">
+    {/* Header */}
+    <div className="flex justify-between items-center mb-6">
+      <Button variant="ghost" className="md:hidden">
+        <Menu />
+      </Button>
+      <h2 className="text-xl font-semibold">Supercars for Sale</h2>
+      <div className="relative">
+        <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Search supercars..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="pl-8 pr-4 py-2 border rounded-lg focus:outline-none"
+        />
+      </div>
+    </div>
+
+    {/* Cars Grid */}
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {filteredCars.map((car, index) => (
+        <Card key={index} className="shadow-lg hover:shadow-2xl transition">
+          <img
+            src={car.image}
+            alt={car.name}
+            className="w-full h-48 object-cover rounded-t-2xl"
+          />
+          <CardContent className="p-4">
+            <h3 className="text-lg font-bold">{car.name}</h3>
+            <p className="text-gray-600">{car.price}</p>
+            <Button className="mt-3 w-full">View Details</Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </main>
+</div>
+
+); }
+
