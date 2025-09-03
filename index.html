@@ -1,52 +1,291 @@
-import { useState } from "react"; import { Car, Search, Menu } from "lucide-react"; import { Card, CardContent } from "@/components/ui/card"; import { Button } from "@/components/ui/button";
+<!doctype html>
 
-export default function Dashboard() { const [search, setSearch] = useState("");
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Supercar Sales Dashboard — Demo</title>
+  <style>
+    :root{
+      --bg:#0f1724; /* dark blue */
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#ff4d4d;
+      --glass: rgba(255,255,255,0.04);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#071025 0%, #071829 60%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }/* Layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;padding:28px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));border-right:1px solid rgba(255,255,255,0.03)}
+.brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#ff6b6b,#ffbb6b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#071025}
+.nav{margin-top:12px}
+.nav a{display:block;padding:10px 8px;border-radius:8px;color:var(--muted);text-decoration:none;margin-bottom:6px}
+.nav a.active, .nav a:hover{background:var(--glass);color:#fff}
 
-const supercars = [ { name: "Ferrari SF90 Stradale", price: "$625,000", image: "https://cdn.pixabay.com/photo/2018/05/02/21/15/ferrari-3366936_1280.jpg", }, { name: "Lamborghini Aventador SVJ", price: "$517,000", image: "https://cdn.pixabay.com/photo/2018/04/13/20/27/lamborghini-3315461_1280.jpg", }, { name: "Bugatti Chiron", price: "$3,000,000", image: "https://cdn.pixabay.com/photo/2018/04/16/15/38/bugatti-3324528_1280.jpg", }, { name: "McLaren P1", price: "$1,150,000", image: "https://cdn.pixabay.com/photo/2021/09/01/13/39/mclaren-6591642_1280.jpg", }, { name: "Porsche 918 Spyder", price: "$845,000", image: "https://cdn.pixabay.com/photo/2016/12/07/15/16/porsche-918-1880381_1280.jpg", }, ];
+.content{flex:1;padding:28px;overflow:auto}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.search{display:flex;gap:12px;align-items:center}
+.search input{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:10px;color:inherit;min-width:240px}
+.stats{display:flex;gap:12px;align-items:center}
+.stat{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);min-width:120px}
+.stat .k{font-size:18px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
 
-const filteredCars = supercars.filter((car) => car.name.toLowerCase().includes(search.toLowerCase()) );
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+.card img{width:100%;height:160px;object-fit:cover;display:block}
+.card-body{padding:14px}
+.title{font-weight:700;margin:0 0 6px 0}
+.sub{color:var(--muted);font-size:13px;margin-bottom:8px}
+.price{font-weight:800;color:var(--accent);font-size:16px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{flex:1;padding:8px 10px;border-radius:8px;border:0;background:transparent;color:inherit;cursor:pointer}
+.btn-primary{background:linear-gradient(90deg,var(--accent),#ff9a6b);color:#071025;font-weight:700}
+.btn-ghost{border:1px solid rgba(255,255,255,0.04)}
 
-return ( <div className="flex h-screen bg-gray-100"> {/* Sidebar */} <aside className="w-64 bg-gray-900 text-white p-6 hidden md:block"> <h1 className="text-2xl font-bold mb-6 flex items-center gap-2"> <Car className="w-6 h-6" /> Supercar Hub </h1> <nav className="space-y-4"> <a href="#" className="block hover:text-gray-300">Dashboard</a> <a href="#" className="block hover:text-gray-300">Sales</a> <a href="#" className="block hover:text-gray-300">Customers</a> <a href="#" className="block hover:text-gray-300">Reports</a> </nav> </aside>
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.7);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.modal{width:960px;max-width:100%;background:linear-gradient(180deg,#071025,#061322);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);box-shadow:0 12px 40px rgba(2,6,23,0.8);display:flex}
+.modal img{width:50%;height:100%;object-fit:cover}
+.modal .m-body{padding:20px;flex:1}
+.m-body h3{margin-top:0}
+.specs{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.chip{background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.02);font-size:13px}
 
-{/* Main Content */}
-  <main className="flex-1 p-6 overflow-y-auto">
-    {/* Header */}
-    <div className="flex justify-between items-center mb-6">
-      <Button variant="ghost" className="md:hidden">
-        <Menu />
-      </Button>
-      <h2 className="text-xl font-semibold">Supercars for Sale</h2>
-      <div className="relative">
-        <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-500" />
-        <input
-          type="text"
-          placeholder="Search supercars..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 pr-4 py-2 border rounded-lg focus:outline-none"
-        />
+/* Responsive */
+@media (max-width:880px){
+  .sidebar{display:none}
+  .modal{flex-direction:column}
+  .modal img{width:100%;height:220px}
+}
+
+/* small helpers */
+.muted{color:var(--muted)}
+.footer{margin-top:24px;color:var(--muted);font-size:13px}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">SC</div>
+        <div>
+          <div style="font-weight:800">Supercar Hub</div>
+          <div class="muted" style="font-size:13px">Premium listings</div>
+        </div>
+      </div><nav class="nav">
+    <a href="#" class="active">Dashboard</a>
+    <a href="#">Inventory</a>
+    <a href="#">Sales</a>
+    <a href="#">Customers</a>
+    <a href="#">Reports</a>
+  </nav>
+
+  <div class="footer">Demo dashboard • Built with plain HTML/CSS/JS</div>
+</aside>
+
+<main class="content">
+  <header>
+    <div>
+      <h1 style="margin:0;font-size:20px">Supercars for Sale</h1>
+      <div class="muted">Exclusive list of available supercars</div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="search">
+        <input id="search" placeholder="Search by make, model or price..." />
+        <button id="clearSearch" class="btn btn-ghost">Clear</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k" id="totalCount">0</div><div class="muted">Listings</div></div>
+        <div class="stat"><div class="k" id="avgPrice">—</div><div class="muted">Avg. Price</div></div>
       </div>
     </div>
+  </header>
 
-    {/* Cars Grid */}
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {filteredCars.map((car, index) => (
-        <Card key={index} className="shadow-lg hover:shadow-2xl transition">
-          <img
-            src={car.image}
-            alt={car.name}
-            className="w-full h-48 object-cover rounded-t-2xl"
-          />
-          <CardContent className="p-4">
-            <h3 className="text-lg font-bold">{car.name}</h3>
-            <p className="text-gray-600">{car.price}</p>
-            <Button className="mt-3 w-full">View Details</Button>
-          </CardContent>
-        </Card>
-      ))}
+  <section>
+    <div class="grid" id="carsGrid">
+      <!-- cards injected by JS -->
     </div>
-  </main>
-</div>
+  </section>
+</main>
 
-); }
+  </div>  <!-- modal container -->  <div id="modalRoot"></div>  <script>
+    const cars = [
+      {
+        id:1,
+        name: 'Ferrari SF90 Stradale',
+        price: 625000,
+        priceDisplay: '$625,000',
+        img: 'https://cdn.pixabay.com/photo/2018/05/02/21/15/ferrari-3366936_1280.jpg',
+        year:2021,
+        hp:986,
+        topSpeed:'211 mph',
+        desc: 'Plug-in hybrid V8 hybrid supercar blending blistering speed with cutting-edge tech.'
+      },
+      {
+        id:2,
+        name: 'Lamborghini Aventador SVJ',
+        price: 517000,
+        priceDisplay: '$517,000',
+        img: 'https://cdn.pixabay.com/photo/2018/04/13/20/27/lamborghini-3315461_1280.jpg',
+        year:2019,
+        hp:770,
+        topSpeed:'217 mph',
+        desc: 'A raw, naturally-aspirated V12 and track-focused dynamics.'
+      },
+      {
+        id:3,
+        name: 'Bugatti Chiron',
+        price: 3000000,
+        priceDisplay: '$3,000,000',
+        img: 'https://cdn.pixabay.com/photo/2018/04/16/15/38/bugatti-3324528_1280.jpg',
+        year:2018,
+        hp:1500,
+        topSpeed:'261+ mph (governed)',
+        desc: 'Hypercar legend — quad-turbo W16 and extraordinary craftsmanship.'
+      },
+      {
+        id:4,
+        name: 'McLaren P1',
+        price: 1150000,
+        priceDisplay: '$1,150,000',
+        img: 'https://cdn.pixabay.com/photo/2021/09/01/13/39/mclaren-6591642_1280.jpg',
+        year:2015,
+        hp:903,
+        topSpeed:'217 mph',
+        desc: 'Hybrid hypercar from McLaren's golden era — focused on driver engagement.'
+      },
+      {
+        id:5,
+        name: 'Porsche 918 Spyder',
+        price: 845000,
+        priceDisplay: '$845,000',
+        img: 'https://cdn.pixabay.com/photo/2016/12/07/15/16/porsche-918-1880381_1280.jpg',
+        year:2014,
+        hp:887,
+        topSpeed:'214 mph',
+        desc: 'Limited-production plug-in hybrid combining efficiency and exotic performance.'
+      }
+    ];
 
+    const carsGrid = document.getElementById('carsGrid');
+    const totalCountEl = document.getElementById('totalCount');
+    const avgPriceEl = document.getElementById('avgPrice');
+    const modalRoot = document.getElementById('modalRoot');
+    const searchInput = document.getElementById('search');
+    const clearSearchBtn = document.getElementById('clearSearch');
+
+    function formatPrice(n){
+      return n.toLocaleString('en-US', {style:'currency',currency:'USD',maximumFractionDigits:0});
+    }
+
+    function renderCars(list){
+      carsGrid.innerHTML = '';
+      list.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${car.img}" alt="${car.name}" loading="lazy">
+          <div class="card-body">
+            <h3 class="title">${car.name}</h3>
+            <div class="sub">${car.year} • ${car.hp} HP • ${car.topSpeed}</div>
+            <div class="price">${car.priceDisplay || formatPrice(car.price)}</div>
+            <div class="actions">
+              <button class="btn btn-primary" data-id="${car.id}">View Details</button>
+              <button class="btn btn-ghost" data-id="${car.id}">Contact</button>
+            </div>
+          </div>
+        `;
+        carsGrid.appendChild(card);
+      });
+
+      // wire up buttons
+      document.querySelectorAll('.btn-primary').forEach(b=>b.addEventListener('click',e=>{
+        const id = +e.currentTarget.dataset.id; openModal(id);
+      }));
+      document.querySelectorAll('.btn-ghost').forEach(b=>b.addEventListener('click',e=>{
+        const id = +e.currentTarget.dataset.id; contactSeller(id);
+      }));
+
+      totalCountEl.textContent = list.length;
+      const avg = Math.round(list.reduce((s,c)=>s+(c.price||0),0)/Math.max(1,list.length));
+      avgPriceEl.textContent = avg ? formatPrice(avg) : '—';
+    }
+
+    function openModal(id){
+      const car = cars.find(c=>c.id===id);
+      if(!car) return;
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" role="dialog" aria-modal="true">
+          <div class="modal">
+            <img src="${car.img}" alt="${car.name}">
+            <div class="m-body">
+              <button id="closeModal" style="float:right;background:transparent;border:0;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+              <h3>${car.name}</h3>
+              <div class="muted">${car.year} • ${car.hp} HP • ${car.topSpeed}</div>
+              <p style="margin-top:12px">${car.desc}</p>
+              <div class="specs">
+                <div class="chip">Price: ${car.priceDisplay || formatPrice(car.price)}</div>
+                <div class="chip">Transmission: Automatic</div>
+                <div class="chip">Drivetrain: RWD/4WD</div>
+                <div class="chip">Condition: Used</div>
+              </div>
+
+              <div style="margin-top:18px;display:flex;gap:10px">
+                <button id="enquiry" class="btn btn-primary">Enquire about this car</button>
+                <button id="close2" class="btn btn-ghost">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('closeModal').addEventListener('click',closeModal);
+      document.getElementById('close2').addEventListener('click',closeModal);
+      document.getElementById('enquiry').addEventListener('click',()=>{
+        alert('Thanks — a sales rep will contact you about ' + car.name + '. (Demo)');
+        closeModal();
+      });
+      // close when clicking backdrop
+      modalRoot.querySelector('.modal-backdrop').addEventListener('click', (ev)=>{
+        if(ev.target.classList && ev.target.classList.contains('modal-backdrop')) closeModal();
+      });
+    }
+    function closeModal(){ modalRoot.innerHTML = ''; }
+
+    function contactSeller(id){
+      const car = cars.find(c=>c.id===id);
+      alert('Contacting seller for ' + car.name + ' — (demo)');
+    }
+
+    // search
+    function applyFilter(){
+      const q = searchInput.value.trim().toLowerCase();
+      if(!q) return renderCars(cars);
+      const filtered = cars.filter(c=>(
+        c.name.toLowerCase().includes(q) ||
+        (c.priceDisplay && c.priceDisplay.toLowerCase().includes(q)) ||
+        String(c.year).includes(q)
+      ));
+      renderCars(filtered);
+    }
+
+    searchInput.addEventListener('input', applyFilter);
+    clearSearchBtn.addEventListener('click', ()=>{ searchInput.value=''; renderCars(cars); });
+
+    // initial render
+    renderCars(cars);
+
+  </script></body>
+</html>
